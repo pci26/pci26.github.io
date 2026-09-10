@@ -3,13 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PCI Timer Event</title>
+<title>The Talk</title>
 
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap');
 
 :root {
-    /* CHANGE THIS IMAGE LINK */
     --bg-image: url("https://raw.githubusercontent.com/itzsam0121/timer-thingy/refs/heads/main/sports%20and%20entertainment%20logo.ico");
 }
 
@@ -31,7 +30,7 @@ body {
     position: relative;
 }
 
-/* Blurred Background Only */
+/* Background */
 body::before {
     content: "";
     position: fixed;
@@ -51,7 +50,7 @@ body::before {
     z-index: -1;
 }
 
-/* Opening fade */
+/* Opening Fade */
 #fade-screen {
     position: fixed;
     inset: 0;
@@ -78,7 +77,6 @@ body::before {
 #intro.fade-up {
     opacity: 0;
     transform: translateY(-150px);
-    pointer-events: none;
 }
 
 #timer-container {
@@ -86,12 +84,12 @@ body::before {
     opacity: 0;
     transition: opacity 1.5s ease;
 
-    background: rgba(0, 0, 0, 0.3);
+    background: rgba(0,0,0,.3);
     backdrop-filter: blur(10px);
 
     padding: 30px;
     border-radius: 20px;
-    min-width: 350px;
+    min-width: 400px;
 }
 
 #timer-container.show {
@@ -99,57 +97,86 @@ body::before {
 }
 
 h1 {
-    margin-bottom: 20px;
     font-size: 2rem;
+    margin-bottom: 20px;
 }
 
 #timer {
-    font-size: 2.5rem;
+    font-size: 2.6rem;
     font-weight: bold;
 }
 
 #surpriseBtn {
     margin-top: 20px;
     padding: 12px 24px;
-    border: none;
-    border-radius: 12px;
-    font-size: 1rem;
-    cursor: pointer;
     background: white;
     color: black;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: .25s;
 }
 
 #surpriseBtn:hover {
-    transform: scale(1.05);
+    transform: scale(1.08);
 }
 
-.effect {
+/* Surprise Effects */
+
+.particle {
     position: fixed;
+    border-radius: 50%;
     pointer-events: none;
-    animation: floatAway 3s linear forwards;
-    z-index: 2000;
+    z-index: 5000;
+    animation: explode 2s ease-out forwards;
 }
 
-@keyframes floatAway {
-    from {
+@keyframes explode {
+    0% {
         opacity: 1;
-        transform: translateY(0);
+        transform: translate(0,0) scale(1);
     }
-    to {
+
+    100% {
         opacity: 0;
-        transform: translateY(-300px);
+        transform:
+            translate(var(--x), var(--y))
+            scale(0);
     }
 }
 
-.scratch {
+.flash {
     position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    font-size: 5rem;
-    color: #ff5b5b;
+    inset: 0;
+    background: white;
+    opacity: 0;
     pointer-events: none;
-    z-index: 3000;
+    z-index: 9000;
+}
+
+.flash.active {
+    animation: flash .4s;
+}
+
+@keyframes flash {
+    0% { opacity:0; }
+    25% { opacity:.8; }
+    100% { opacity:0; }
+}
+
+.scratch-img {
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    width: 500px;
+    max-width: 80vw;
+
+    transform: translate(-50%, -50%);
+
+    pointer-events: none;
+    z-index: 7000;
+
     animation: scratchFade 2s forwards;
 }
 
@@ -158,12 +185,14 @@ h1 {
         opacity: 0;
         transform: translate(-50%, -50%) scale(.5);
     }
+
     20% {
         opacity: 1;
     }
+
     100% {
         opacity: 0;
-        transform: translate(-50%, -50%) scale(1.4);
+        transform: translate(-50%, -50%) scale(1.3);
     }
 }
 </style>
@@ -172,6 +201,7 @@ h1 {
 <body>
 
 <div id="fade-screen"></div>
+<div class="flash" id="flash"></div>
 
 <div id="intro">Are you ready?</div>
 
@@ -179,49 +209,65 @@ h1 {
     <h1>Countdown to The Talk</h1>
     <div id="timer">Loading...</div>
 
-    <button id="surpriseBtn">Surprise Me</button>
+    <button id="surpriseBtn">🎉 Surprise Me</button>
 </div>
 
 <script>
 const intro = document.getElementById("intro");
 const timerContainer = document.getElementById("timer-container");
 const fadeScreen = document.getElementById("fade-screen");
+const flash = document.getElementById("flash");
 
-// Intro for 3 seconds
+/* Intro Animation */
 setTimeout(() => {
+
     intro.classList.add("fade-up");
     fadeScreen.classList.add("hide");
 
     setTimeout(() => {
         timerContainer.classList.add("show");
     }, 1000);
+
 }, 3000);
 
-// September 11, 2026 at 9:00 AM
-const targetDate = new Date("September 11, 2026 09:00:00").getTime();
+/* Countdown */
+const targetDate =
+    new Date("September 11, 2026 09:00:00").getTime();
 
 function updateTimer() {
+
     const now = new Date().getTime();
     const distance = targetDate - now;
 
-    if (distance <= 0) {
-        document.getElementById("timer").textContent = "The Talk has begun!";
+    if(distance <= 0) {
+        document.getElementById("timer")
+            .textContent = "The Talk has begun!";
         return;
     }
 
-    const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-    const hours = Math.floor(
-        (distance % (1000 * 60 * 60 * 24)) /
-        (1000 * 60 * 60)
-    );
-    const minutes = Math.floor(
-        (distance % (1000 * 60 * 60)) /
-        (1000 * 60)
-    );
-    const seconds = Math.floor(
-        (distance % (1000 * 60)) /
-        1000
-    );
+    const days =
+        Math.floor(distance / (1000*60*60*24));
+
+    const hours =
+        Math.floor(
+            (distance %
+            (1000*60*60*24))
+            /(1000*60*60)
+        );
+
+    const minutes =
+        Math.floor(
+            (distance %
+            (1000*60*60))
+            /(1000*60)
+        );
+
+    const seconds =
+        Math.floor(
+            (distance %
+            (1000*60))
+            /1000
+        );
 
     document.getElementById("timer").textContent =
         `${days}d ${hours}h ${minutes}m ${seconds}s`;
@@ -230,65 +276,143 @@ function updateTimer() {
 updateTimer();
 setInterval(updateTimer, 1000);
 
-// Surprise Me Button
-const surpriseBtn = document.getElementById("surpriseBtn");
+/* Surprise Button */
+
+const surpriseBtn =
+    document.getElementById("surpriseBtn");
+
+const effects = [
+    confettiBurst,
+    sparkleExplosion,
+    rainbowStorm,
+    tigerScratch
+];
 
 surpriseBtn.addEventListener("click", () => {
-    const effects = [
-        bubbles,
-        balloons,
-        tigerScratch
-    ];
 
-    const randomEffect =
-        effects[Math.floor(Math.random() * effects.length)];
+    const random =
+        effects[Math.floor(
+            Math.random() * effects.length
+        )];
 
-    randomEffect();
+    random();
 });
 
-function bubbles() {
-    for (let i = 0; i < 20; i++) {
-        const bubble = document.createElement("div");
+function makeParticle(color) {
 
-        bubble.className = "effect";
-        bubble.innerHTML = "🫧";
+    const p =
+        document.createElement("div");
 
-        bubble.style.left = Math.random() * 100 + "vw";
-        bubble.style.top = "100vh";
-        bubble.style.fontSize = (20 + Math.random() * 40) + "px";
+    p.className = "particle";
 
-        document.body.appendChild(bubble);
+    const size =
+        8 + Math.random() * 20;
 
-        setTimeout(() => bubble.remove(), 3000);
+    p.style.width = size + "px";
+    p.style.height = size + "px";
+    p.style.background = color;
+
+    p.style.left = "50%";
+    p.style.top = "50%";
+
+    p.style.setProperty(
+        "--x",
+        (Math.random()*800-400)+"px"
+    );
+
+    p.style.setProperty(
+        "--y",
+        (Math.random()*800-400)+"px"
+    );
+
+    document.body.appendChild(p);
+
+    setTimeout(() => p.remove(), 2000);
+}
+
+function confettiBurst() {
+
+    const colors = [
+        "#ff595e",
+        "#ffca3a",
+        "#8ac926",
+        "#1982c4",
+        "#6a4c93"
+    ];
+
+    for(let i=0;i<120;i++) {
+
+        makeParticle(
+            colors[
+                Math.floor(
+                    Math.random()
+                    * colors.length
+                )
+            ]
+        );
     }
 }
 
-function balloons() {
-    for (let i = 0; i < 15; i++) {
-        const balloon = document.createElement("div");
+function sparkleExplosion() {
 
-        balloon.className = "effect";
-        balloon.innerHTML = "🎈";
+    for(let i=0;i<100;i++) {
+        makeParticle("white");
+    }
 
-        balloon.style.left = Math.random() * 100 + "vw";
-        balloon.style.top = "100vh";
-        balloon.style.fontSize = (30 + Math.random() * 30) + "px";
+    flash.classList.add("active");
 
-        document.body.appendChild(balloon);
+    setTimeout(() => {
+        flash.classList.remove("active");
+    }, 400);
+}
 
-        setTimeout(() => balloon.remove(), 3000);
+function rainbowStorm() {
+
+    const colors = [
+        "red",
+        "orange",
+        "yellow",
+        "lime",
+        "cyan",
+        "blue",
+        "violet"
+    ];
+
+    for(let i=0;i<200;i++) {
+
+        makeParticle(
+            colors[
+                Math.floor(
+                    Math.random()
+                    * colors.length
+                )
+            ]
+        );
     }
 }
 
 function tigerScratch() {
-    const scratch = document.createElement("div");
 
-    scratch.className = "scratch";
-    scratch.innerHTML = "https://github.com/pci26/pci26.github.io/blob/main/399-3991075_claw-scratch-clipart-roblox-tiger-claw-design.png?raw=true";
+    const img =
+        document.createElement("img");
 
-    document.body.appendChild(scratch);
+    img.src =
+    "https://raw.githubusercontent.com/pci26/pci26.github.io/main/399-3991075_claw-scratch-clipart-roblox-tiger-claw-design.png";
 
-    setTimeout(() => scratch.remove(), 2000);
+    img.className =
+        "scratch-img";
+
+    document.body.appendChild(img);
+
+    flash.classList.add("active");
+
+    setTimeout(() => {
+        flash.classList.remove("active");
+    }, 400);
+
+    setTimeout(() => {
+        img.remove();
+    }, 2000);
 }
 </script>
 
