@@ -2,7 +2,6 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<link rel="icon" type="image/x-icon" href="https://raw.githubusercontent.com/itzsam0121/timer-thingy/refs/heads/main/sports%20and%20entertainment%20logo.ico">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PCI Timer Event</title>
 
@@ -32,7 +31,7 @@ body {
     position: relative;
 }
 
-/* Background Image Only */
+/* Blurred Background Only */
 body::before {
     content: "";
     position: fixed;
@@ -51,9 +50,8 @@ body::before {
 
     z-index: -1;
 }
-`
-    
-/* Black fade screen */
+
+/* Opening fade */
 #fade-screen {
     position: fixed;
     inset: 0;
@@ -109,6 +107,65 @@ h1 {
     font-size: 2.5rem;
     font-weight: bold;
 }
+
+#surpriseBtn {
+    margin-top: 20px;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 12px;
+    font-size: 1rem;
+    cursor: pointer;
+    background: white;
+    color: black;
+}
+
+#surpriseBtn:hover {
+    transform: scale(1.05);
+}
+
+.effect {
+    position: fixed;
+    pointer-events: none;
+    animation: floatAway 3s linear forwards;
+    z-index: 2000;
+}
+
+@keyframes floatAway {
+    from {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateY(-300px);
+    }
+}
+
+.scratch {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 5rem;
+    color: #ff5b5b;
+    pointer-events: none;
+    z-index: 3000;
+    animation: scratchFade 2s forwards;
+}
+
+@keyframes scratchFade {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(.5);
+    }
+    20% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(1.4);
+    }
+}
 </style>
 </head>
 
@@ -119,8 +176,10 @@ h1 {
 <div id="intro">Are you ready?</div>
 
 <div id="timer-container">
-    <h1>Countdown to Event</h1>
+    <h1>Countdown to The Talk</h1>
     <div id="timer">Loading...</div>
+
+    <button id="surpriseBtn">Surprise Me</button>
 </div>
 
 <script>
@@ -138,27 +197,30 @@ setTimeout(() => {
     }, 1000);
 }, 3000);
 
-// September 14, 2026 9:00 AM
-const targetDate = new Date("September 14, 2026 09:00:00").getTime();
+// September 11, 2026 at 9:00 AM
+const targetDate = new Date("September 11, 2026 09:00:00").getTime();
 
 function updateTimer() {
     const now = new Date().getTime();
     const distance = targetDate - now;
 
     if (distance <= 0) {
-        document.getElementById("timer").textContent = "done!";
+        document.getElementById("timer").textContent = "The Talk has begun!";
         return;
     }
 
     const days = Math.floor(distance / (1000 * 60 * 60 * 24));
     const hours = Math.floor(
-        (distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
+        (distance % (1000 * 60 * 60 * 24)) /
+        (1000 * 60 * 60)
     );
     const minutes = Math.floor(
-        (distance % (1000 * 60 * 60)) / (1000 * 60)
+        (distance % (1000 * 60 * 60)) /
+        (1000 * 60)
     );
     const seconds = Math.floor(
-        (distance % (1000 * 60)) / 1000
+        (distance % (1000 * 60)) /
+        1000
     );
 
     document.getElementById("timer").textContent =
@@ -167,6 +229,67 @@ function updateTimer() {
 
 updateTimer();
 setInterval(updateTimer, 1000);
+
+// Surprise Me Button
+const surpriseBtn = document.getElementById("surpriseBtn");
+
+surpriseBtn.addEventListener("click", () => {
+    const effects = [
+        bubbles,
+        balloons,
+        tigerScratch
+    ];
+
+    const randomEffect =
+        effects[Math.floor(Math.random() * effects.length)];
+
+    randomEffect();
+});
+
+function bubbles() {
+    for (let i = 0; i < 20; i++) {
+        const bubble = document.createElement("div");
+
+        bubble.className = "effect";
+        bubble.innerHTML = "blub";
+
+        bubble.style.left = Math.random() * 100 + "vw";
+        bubble.style.top = "100vh";
+        bubble.style.fontSize = (20 + Math.random() * 40) + "px";
+
+        document.body.appendChild(bubble);
+
+        setTimeout(() => bubble.remove(), 3000);
+    }
+}
+
+function balloons() {
+    for (let i = 0; i < 15; i++) {
+        const balloon = document.createElement("div");
+
+        balloon.className = "effect";
+        balloon.innerHTML = "ball";
+
+        balloon.style.left = Math.random() * 100 + "vw";
+        balloon.style.top = "100vh";
+        balloon.style.fontSize = (30 + Math.random() * 30) + "px";
+
+        document.body.appendChild(balloon);
+
+        setTimeout(() => balloon.remove(), 3000);
+    }
+}
+
+function tigerScratch() {
+    const scratch = document.createElement("div");
+
+    scratch.className = "scratch";
+    scratch.innerHTML = "rawr";
+
+    document.body.appendChild(scratch);
+
+    setTimeout(() => scratch.remove(), 2000);
+}
 </script>
 
 </body>
